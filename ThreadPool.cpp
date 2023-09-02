@@ -1,4 +1,5 @@
 #include "ThreadPool.h"
+#include "InterruptableThread.h"
 //==================================================================
 ThreadPool::ThreadPool() :
 	m_thread_count(std::thread::hardware_concurrency() > 0 ? std::thread::hardware_concurrency() : 4),
@@ -17,7 +18,7 @@ ThreadPool::~ThreadPool() {
 //------------------------------------------------------------------
 void ThreadPool::start() {
 	for (size_t i = 0; i < m_thread_count; i++){
-		m_threads.push_back(new InterruptableThread(this, i)); 
+		//m_threads.push_back(new InterruptableThread(this, i)); 
 	}
 }
 //------------------------------------------------------------------

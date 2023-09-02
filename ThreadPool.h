@@ -1,8 +1,9 @@
 #pragma once
 #include<iostream>
 #include "BlockedQueue.h"
-#include "InterruptableThread.h"
 //=================================================================================
+class InterruptableThread;
+
 void taskFunc(int id, int delay);
 
 typedef std::function<void()> task_type;

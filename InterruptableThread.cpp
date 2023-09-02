@@ -1,8 +1,11 @@
 #include "InterruptableThread.h"
+#include "ThreadPool.h"
 //===========================================================================================
-InterruptableThread::InterruptableThread(ThreadPool* pool, int qindex):
+thread_local bool thread_interrupt_flag = false;
+//-------------------------------------------------------------------------------------------
+InterruptableThread::InterruptableThread(ThreadPool* pool, int qindex) :
     m_pFlag(nullptr),
-    m_thread(&InterruptableThread::startFunc, this, taskFunc) 
+    m_thread(&InterruptableThread::startFunc, this, taskFunc)
 {
 }
 //-------------------------------------------------------------------------------------------
@@ -14,20 +17,23 @@ InterruptableThread::~InterruptableThread() {
 void InterruptableThread::startFunc(ThreadPool* pool, int qindex) {
     {
         std::lock_guard<std::mutex> l(m_defender);
-        m_pFlag = &thread_interrupt_flag;  // инициализация указателя
+        m_pFlag = &thread_interrupt_flag;  
     }
-    pool->threadFunc(qindex); // вызвали то, что возможно будет прервано
+    pool->threadFunc(qindex); 
     {
         std::lock_guard<std::mutex> l(m_defender);
-        m_pFlag = nullptr; // защищаемся от обращений к несуществующей памяти
+        m_pFlag = nullptr; 
     }
-
 }
 //-------------------------------------------------------------------------------------------
 void InterruptableThread::interrupt() {
     std::lock_guard<std::mutex> l(m_defender);
-    if (m_pFlag) // защищаемся, чтоб не попасть, куда не нужно
+    if (m_pFlag) 
         *m_pFlag = true;
+}
+//-------------------------------------------------------------------------------------------
+bool InterruptableThread::checkInterrupted() {
+    return thread_interrupt_flag;
 }
 //-------------------------------------------------------------------------------------------
 void InterruptableThread::join() {

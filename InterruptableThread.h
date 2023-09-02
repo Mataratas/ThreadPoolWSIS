@@ -2,10 +2,8 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
-#include "ThreadPool.h"
+class ThreadPool;
 //===========================================================================================
-thread_local bool thread_interrupt_flag = false;
-//-------------------------------------------------------------------------------------------
 class InterruptableThread{
 public:
     InterruptableThread(ThreadPool* pool, int qindex);
@@ -13,9 +11,7 @@ public:
     void startFunc(ThreadPool* pool, int qindex);
     void interrupt();
     void join();
-    static bool checkInterrupted() {
-        return thread_interrupt_flag;
-    }
+    static bool checkInterrupted();
 
 private:
     std::mutex m_defender;
