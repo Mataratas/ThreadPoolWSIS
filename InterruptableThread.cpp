@@ -5,12 +5,15 @@ thread_local bool thread_interrupt_flag = false;
 //-------------------------------------------------------------------------------------------
 InterruptableThread::InterruptableThread(ThreadPool* pool, int qindex) :
     m_pFlag(nullptr),
-    m_thread(&InterruptableThread::startFunc, this, taskFunc)
+    m_thread(&InterruptableThread::startFunc, this, pool, qindex)
 {
 }
 //-------------------------------------------------------------------------------------------
 InterruptableThread::~InterruptableThread() {
-    if (m_thread.joinable())
+#ifdef _DEBUG
+    std::cout << "Destructor: thread - " << m_thread.get_id() << std::endl;
+#endif // _DEBUG
+    if (m_thread.joinable()) 
         m_thread.join();
 }
 //-------------------------------------------------------------------------------------------

@@ -17,8 +17,8 @@ ThreadPool::~ThreadPool() {
 }
 //------------------------------------------------------------------
 void ThreadPool::start() {
-	for (size_t i = 0; i < m_thread_count; i++){
-		//m_threads.push_back(new InterruptableThread(this, i)); 
+	for (int i = 0; i < m_thread_count; i++){
+		m_threads.push_back(new InterruptableThread(this, i)); 
 	}
 }
 //------------------------------------------------------------------
@@ -33,11 +33,12 @@ void ThreadPool::stop() {
 }
 //------------------------------------------------------------------
 void ThreadPool::interrupt() {
-	for (auto& t : m_threads) {
+	for (InterruptableThread *t : m_threads) {
 		t->interrupt();
 	}
+	m_event_holder.notify_all();
 }
-
+//------------------------------------------------------------------
 void ThreadPool::push_task(FuncType f, int id, int arg) {
 	int queue_to_push = m_index++ % m_thread_count; // вычисляем индекс очереди, куда положим задачу
 	task_type new_task([=] {f(id, arg); }); // формируем функтор
